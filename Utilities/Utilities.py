@@ -39,7 +39,7 @@ class Utilities():
     def Spinwave_profile(self,plottype,modenumber, k_point,xlimits):
         #this function plots the spinwave profile of modenumber between xlimits at k
         
-        self._profile=np.zeros((np.floor(self._PlaneWaves/2),6))
+        self._profile=np.zeros(int(self._PlaneWaves/2),6)
         #finding eigenvector with closest k-value
         mode=self.return_mode(modenumber)
         eigenvector=mode[np.argmin(np.absolute(mode[:,0]*self._Periodicity/(2*np.pi)-k_point)),3]
