@@ -27,15 +27,10 @@ class Calculator_1D():
         I_Grid=I_Grid*self._Reciprocal_lattice_vector
         J_Grid=J_Grid*self._Reciprocal_lattice_vector
         
-        data_k=[]
-        data_eigenvalues=[]
-        data_eigenvectors=[]
-        data_mode=[]
-        
         SatMag_matrix=self._Saturation_Magnetization(I_Grid-J_Grid)/(self._External_field/self._Vacuum_permeability)
         Exchange_matrix=self._Exchange(I_Grid-J_Grid)/(self._External_field/self._Vacuum_permeability)
         
-        for k in self._k_points:
+        for k_index, k in enumerate(self._k_points):
             Mxy=np.identity(2*self._PlaneWaves+1)+(1-self._Demagnetization(k+J_Grid))*SatMag_matrix+Exchange_matrix*(k+J_Grid)**2
             Myx=-np.identity(2*self._PlaneWaves+1)-self._Demagnetization(k+J_Grid)*SatMag_matrix-Exchange_matrix*(k+J_Grid)**2
         
@@ -50,12 +45,7 @@ class Calculator_1D():
             eigenvectors=eigenvectors.transpose()
             eigenvectors=eigenvectors.tolist()
             
-            data_k.extend(k_values[:self._modes])
-            data_eigenvalues.extend(eigenvalues[:self._modes])
-            data_eigenvectors.extend(eigenvectors[:self._modes])
-            data_mode.extend(np.arange(len(eigenvalues[:self._modes])))
-            
-        self._bandstructure[:,0]=data_k
-        self._bandstructure[:,1]=data_mode
-        self._bandstructure[:,2]=data_eigenvalues
-        self._bandstructure[:,3]=data_eigenvectors
+            self._bandstructure[k_index*self._modes:(k_index+1)*self._modes,0]=k_values[:self._modes]
+            self._bandstructure[k_index*self._modes:(k_index+1)*self._modes,1]=np.arange(len(eigenvalues[:self._modes]))
+            self._bandstructure[k_index*self._modes:(k_index+1)*self._modes,2]=eigenvalues[:self._modes]
+            self._bandstructure[k_index*self._modes:(k_index+1)*self._modes,3]=eigenvectors[:self._modes]
