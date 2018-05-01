@@ -5,18 +5,6 @@ class Calculator_1D():
     def _Demagnetization(self,Vector):
         Demag_factor=np.exp(-np.absolute(Vector)*self._Film_thickness/2)*np.cosh(np.absolute(Vector)*self._Film_thickness/2)
         return Demag_factor
-    
-    def _Saturation_Magnetization(self,Vector):
-        np.fill_diagonal(Vector,np.nan)
-        Sat_Mag_factor=2/(self._Periodicity*Vector)*(self._SatMag_stripe-self._SatMag_matrix)*np.sin(Vector*self._Stripe_width/2)
-        np.fill_diagonal(Sat_Mag_factor,(self._Stripe_width/self._Periodicity)*(self._SatMag_stripe-self._SatMag_matrix)+self._SatMag_matrix)
-        return Sat_Mag_factor
-    
-    def _Exchange(self,Vector):
-        np.fill_diagonal(Vector,np.nan)
-        Exchange_factor=2/(self._Periodicity*Vector)*(self._Exchange_stripe-self._Exchange_matrix)*np.sin(Vector*self._Stripe_width/2)
-        np.fill_diagonal(Exchange_factor,(self._Stripe_width/self._Periodicity)*(self._Exchange_stripe-self._Exchange_matrix)+self._Exchange_matrix)
-        return Exchange_factor
             
     def Bandstructure_calculation(self):
         Mxx=np.zeros((2*self._PlaneWaves+1,2*self._PlaneWaves+1))
@@ -27,12 +15,12 @@ class Calculator_1D():
         I_Grid=I_Grid*self._Reciprocal_lattice_vector
         J_Grid=J_Grid*self._Reciprocal_lattice_vector
         
-        SatMag_matrix=self._Saturation_Magnetization(I_Grid-J_Grid)/(self._External_field/self._Vacuum_permeability)
-        Exchange_matrix=self._Exchange(I_Grid-J_Grid)/(self._External_field/self._Vacuum_permeability)
+        SatMag=self._Saturation_magnetization_matrix/(self._External_field/self._Vacuum_permeability)
+        Exchange=self._Exchange_matrix/(self._External_field/self._Vacuum_permeability)
         
         for k_index, k in enumerate(self._k_points):
-            Mxy=np.identity(2*self._PlaneWaves+1)+(1-self._Demagnetization(k+J_Grid))*SatMag_matrix+Exchange_matrix*(k+J_Grid)**2
-            Myx=-np.identity(2*self._PlaneWaves+1)-self._Demagnetization(k+J_Grid)*SatMag_matrix-Exchange_matrix*(k+J_Grid)**2
+            Mxy=np.identity(2*self._PlaneWaves+1)+(1-self._Demagnetization(k+J_Grid))*SatMag+Exchange*(k+J_Grid)**2
+            Myx=-np.identity(2*self._PlaneWaves+1)-self._Demagnetization(k+J_Grid)*SatMag-Exchange*(k+J_Grid)**2
         
             M=np.concatenate((np.concatenate((Mxx,Myx),axis=0),np.concatenate((Mxy,Myy),axis=0)),axis=1)
         
